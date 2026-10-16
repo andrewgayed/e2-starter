@@ -36,6 +36,29 @@ function drawCrew(results: ShiftResults) {
   }
 }
 
+type DisplayRow = {
+  label: string;
+  value: number;
+  color: string;
+};
+
+function drawRows(results: ShiftResults) {
+  const rows: DisplayRow[] = [
+    { label: "Production", value: results.production, color: "#27766b" },
+    { label: "Consumption", value: results.consumption, color: "#a44d23" },
+  ];
+
+  rows.forEach((row, index) => {
+    const y = 102 + index * 52;
+
+    ctx.fillStyle = "#233e43";
+    ctx.fillText(`${row.label}: ${row.value}`, 18, y);
+
+    ctx.fillStyle = row.color;
+    ctx.fillRect(18, y + 8, row.value * 14, 20);
+  });
+}
+
 function updateAllocation() {
   const results = calculateShift();
   const { assignedProducers, production, consumption, balance } = results;
@@ -44,13 +67,7 @@ function updateAllocation() {
   ctx.fillStyle = "#233e43";
   ctx.font = "14px system-ui";
   ctx.fillText(`Producers: ${assignedProducers} / 6`, 18, 76);
-  ctx.fillText(`Production: ${production}`, 18, 102);
-  ctx.fillStyle = "#27766b";
-  ctx.fillRect(18, 110, production * 14, 20);
-  ctx.fillStyle = "#233e43";
-  ctx.fillText(`Consumption: ${consumption}`, 18, 154);
-  ctx.fillStyle = "#a44d23";
-  ctx.fillRect(18, 162, consumption * 14, 20);
+  drawRows(results);
   readout.textContent =
     `Assigned: ${assignedProducers}/6 · Production: ${production} · Consumption: ${consumption} · Balance: ${
       balance > 0 ? "+" : ""
