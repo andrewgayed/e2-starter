@@ -12,6 +12,7 @@ const diagnostic = document.querySelector<HTMLParagraphElement>(
 let count = 0;
 let panel: HTMLParagraphElement | null = null;
 let panelUpdates = 0;
+const shieldEvents = new EventTarget();
 
 type ShieldSnapshot = {
   charge: number;
@@ -52,11 +53,15 @@ function renderStats(snapshot: ShieldSnapshot) {
     `Shield charge: ${snapshot.charge} · Missing charge: ${snapshot.missing}`;
 }
 
+shieldEvents.addEventListener("change", () => {
+  drawMeter(getShieldSnapshot());
+});
+
 function setCount(next: number) {
   const bounded = Math.max(0, Math.min(10, next));
   if (bounded === count) return;
   count = bounded;
-  drawMeter(getShieldSnapshot());
+  shieldEvents.dispatchEvent(new Event("change"));
   if (panel) updateStats();
 }
 
