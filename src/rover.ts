@@ -71,11 +71,44 @@ const rightCommand: Command = {
 };
 
 document.querySelector<HTMLButtonElement>("#rover-forward")!.onclick = () => {
-  executeCommand(forwardCommand);
+  commandQueue.push(forwardCommand);
+  updateQueue();
 };
 
 document.querySelector<HTMLButtonElement>("#rover-right")!.onclick = () => {
-  executeCommand(rightCommand);
+  commandQueue.push(rightCommand);
+  updateQueue();
+};
+
+const commandQueue: Command[] = [];
+
+const pendingList = document.querySelector<HTMLOListElement>("#rover-pending")!;
+const runButton = document.querySelector<HTMLButtonElement>("#rover-run")!;
+const clearButton = document.querySelector<HTMLButtonElement>("#rover-clear")!;
+
+function updateQueue() {
+  pendingList.replaceChildren();
+
+  for (const command of commandQueue) {
+    const item = document.createElement("li");
+    item.textContent = command.label;
+    pendingList.appendChild(item);
+  }
+
+  runButton.disabled = commandQueue.length === 0;
+  clearButton.disabled = commandQueue.length === 0;
+}
+
+runButton.onclick = () => {
+  while (commandQueue.length > 0) {
+    executeCommand(commandQueue.shift()!);
+  }
+  updateQueue();
+};
+
+clearButton.onclick = () => {
+  commandQueue.length = 0;
+  updateQueue();
 };
 
 document.querySelector<HTMLButtonElement>("#rover-reset")!.onclick = () => {
@@ -83,5 +116,8 @@ document.querySelector<HTMLButtonElement>("#rover-reset")!.onclick = () => {
   y = 2;
   direction = 0;
   drawRover();
+  commandQueue.length = 0;
+  updateQueue();
 };
 drawRover();
+updateQueue();
